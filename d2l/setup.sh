@@ -1,3 +1,4 @@
+#!/bin/bash
 pyenv install 3.11.x
 pyenv virtualenv 3.11.x env-3.11
 pyenv activate env-3.11
