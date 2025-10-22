@@ -17,19 +17,6 @@ class Value:
         out._backward = _backward
         return out
 
-    def relu(self):
-        out = Value(0 if self.data < 0 else self.data, (self, ), 'ReLU')
-
-        def _backward():
-            self.grad += (out.data > 0) * out.grad
-
-        out._backward = _backward
-
-        return out
-
-    def __radd(self, other):
-        return self + other
-
     def __mul__(self, other):
         other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data * other.data, (self, other), '*')
@@ -41,8 +28,30 @@ class Value:
         out._backward = _backward
         return out
 
+
+    def relu(self):
+        out = Value(0 if self.data < 0 else self.data, (self, ), 'ReLU')
+
+        def _backward():
+            self.grad += (out.data > 0) * out.grad
+
+        out._backward = _backward
+
+        return out
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other): # self - other
+        return self + (-other)
+
+    def __rsub__(self, other): # other - self
+        return other + (-self)
     def __rmul__(self, other):
         return self * other
+
+    def __neg__(self, other):
+        return self * -1
 
     def backward(self):
         visited = set()
