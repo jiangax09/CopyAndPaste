@@ -15,3 +15,5 @@ END {
         if (arr[w] == 1)
             printf("%s is used only once\n", w)
 }
+
+# /opt/homebrew/bin/gawk
