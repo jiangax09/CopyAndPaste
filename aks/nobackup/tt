@@ -1,0 +1,174 @@
+bundle.awk #!/usr/bin/awk -f
+bundle.awk 
+bundle.awk { print FILENAME, $0 }
+checkgen.awk #!/usr/bin/awk -f
+checkgen.awk 
+checkgen.awk BEGIN { FS = ";" }
+checkgen.awk {
+checkgen.awk     printf("%s {\n\tprintf(\"line %%d, %s: %%s\\n\", NR, $0) }\n", $1, $2)
+checkgen.awk }
+cnt_word.awk #!/usr/bin/awk -f
+cnt_word.awk 
+cnt_word.awk 
+cnt_word.awk {line = $0}
+cnt_word.awk {
+cnt_word.awk     n = split(line, x, "[^A-Za-z0-9_]+")
+cnt_word.awk 
+cnt_word.awk     for (i = 1; i <= n; i++) {
+cnt_word.awk         if (x[i] != "")
+cnt_word.awk             arr[x[i]]++
+cnt_word.awk     }
+cnt_word.awk }
+cnt_word.awk END {
+cnt_word.awk     for (w in arr) {
+cnt_word.awk         if (arr[w] == 1)
+cnt_word.awk             printf("%s is used only once\n", w)
+cnt_word.awk }
+cnt_word.awk 
+cnt_word.awk # /opt/homebrew/bin/gawk
+colcheck.awk #!/usr/bin/awk -f
+colcheck.awk 
+colcheck.awk NR == 1 {
+colcheck.awk     nfld = NF
+colcheck.awk     for (i = 1; i <= NF; i++)
+colcheck.awk         type[i] = isnum[$i]
+colcheck.awk }
+colcheck.awk 
+colcheck.awk {
+colcheck.awk     if (NF != nfld)
+colcheck.awk         printf("line %d has %d fields instead of %d\n", NR, nfld, NF)
+colcheck.awk 
+colcheck.awk     for (i = 1; i <= NF; i++)
+colcheck.awk         if (isnum($i) != type[i])
+colcheck.awk             printf("field %d in line %d differs from line 1\n", i, NR)
+colcheck.awk }
+colcheck.awk 
+colcheck.awk function isnum(n) { return n ~ /^[+-]?[0-9]+$/ }
+format.awk #!/usr/bin/awk -f
+format.awk BEGIN {
+format.awk     FS = "\t"
+format.awk     dashes = sp45 = sprintf("%45s", " ")
+format.awk     gsub(/ /, "-", dashes)
+format.awk     "date" | getline date
+format.awk     split(date, d, " ")
+format.awk     date = d[2] " " d[3] ", " d[6]
+format.awk     initnums()
+format.awk }
+format.awk 
+format.awk NF != 3 || $2 >= 1000000 {
+format.awk         printf("\nline %d illegal: %s\n", NR, $0)
+format.awk }
+format.awk {
+format.awk     printf("\n")
+format.awk     printf("%s%s\n", sp45, $1)
+format.awk     printf("\s\s\n", sp45, date)
+format.awk     amt = sprintf(".2f", $2)
+format.awk     printf("Pay to %45.45s   %s\n", $3 dashes, amt)
+format.awk     printf("the sum of %s\n", numtowords(amt))
+format.awk     printf("\n\n\n")
+format.awk }
+format.awk 
+format.awk function numtowords(n,      cents, dols) {
+format.awk     cents = substr(n, length(n) - 1, 2)
+format.awk     dols = substr(n, 1, length(n) - 3)
+format.awk     if (dols == 0)
+format.awk        return "zero dolloars and " cents " cents."
+format.awk 
+format.awk     s = inttowords(dols)
+format.awk     if (s == "one")
+format.awk        s = s "dollars "
+format.awk     else
+format.awk         s = s " dollar "
+format.awk 
+format.awk     c = inttowords(cent)
+format.awk     if (c == "one")
+format.awk        c = c " cent."
+format.awk     else
+format.awk         c = c " cents"
+format.awk 
+format.awk     return s c
+format.awk }
+format.awk 
+format.awk function inttowords(n) {
+format.awk     n = int(n)
+format.awk     if (n >= 1000)
+format.awk        return inttowords(n / 1000) " thousands " inttowords(n % 1000)
+format.awk     if (n >= 100)
+format.awk        return inttowords(n / 100) "hundsreds " inttowords(n % 100)
+format.awk     if (n >= 20) {
+format.awk            temp = tens[int(n/10)]
+format.awk            if (n % 10 != 0)
+format.awk               temp = temp "-"
+format.awk            else
+format.awk                temp = temp " "
+format.awk           }
+format.awk        return temp inttowords(n%10)
+format.awk 
+format.awk     return nums[n]
+format.awk }
+format.awk 
+format.awk function initnum() {
+format.awk     split("one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen", nums, " ")
+format.awk     split("ten twenty thirty forty fifty sixty seventy eighty ninety", tens, " ")
+format.awk }
+p1p2check.awk BEGIN {
+p1p2check.awk     expected["aa"] = "bb"
+p1p2check.awk     expected["cc"] = "dd"
+p1p2check.awk }
+p1p2check.awk /^(dd|bb)/ {
+p1p2check.awk     if (p = "")
+p1p2check.awk         print "missing at ", NR
+p1p2check.awk     x = substr($0, 1, 2)
+p1p2check.awk     if (expected[p] != x)
+p1p2check.awk         print "mis match at ", NR
+p1p2check.awk     p = ""
+p1p2check.awk }
+p1p2check.awk 
+p1p2check.awk /^(aa|cc)/ {
+p1p2check.awk     if (p != "")
+p1p2check.awk         print "missing ", NR
+p1p2check.awk     p = substr($0, 1, 2)
+p1p2check.awk }
+p1p2check.awk 
+p1p2check.awk END {
+p1p2check.awk     if (p ! = "")
+p1p2check.awk         print "missing in the end."
+p1p2check.awk }
+version.awk #!/usr/bin/awk -f
+version.awk 
+version.awk BEGIN {
+version.awk     asplit("close system atan2 sin match sub gsub", fcns)
+version.awk     asplit("ARGC ARGV FNR RESTART RLENGTH SUBSEP", vars)
+version.awk     asplit("do delete function return", keys)
+version.awk }
+version.awk 
+version.awk {line = $0}
+version.awk /"/  {gsub(/"([^"]|\\)*"/, "", line)}
+version.awk /\// {gsub(/\/([^\/]|\\\/)+\//, "", line)}
+version.awk /#/  {sub(/#.*/, "", line)}
+version.awk /\<(do|delete|functio|return)\>/ {
+version.awk     warn(line)
+version.awk }
+version.awk {
+version.awk     n = split(line, x, "[^A-Za-z0-9_]+")
+version.awk     for (i = 1; i <= n; i++) {
+version.awk         if (x[i] in fcns)
+version.awk             warn(x[i] " is now a built-in function")
+version.awk         if (x[i] in vars)
+version.awk             warn(x[i] " is now a built-in var")
+version.awk         if (x[i] in keys)
+version.awk             warn(x[i] " is now a built-in key")
+version.awk     }
+version.awk }
+version.awk 
+version.awk function asplit(str, arr) {
+version.awk     n = split(str, temp)
+version.awk     for (i = 1; i <= n; i++)
+version.awk         arr[temp[i]]++
+version.awk     return n
+version.awk }
+version.awk 
+version.awk function warn(s) {
+version.awk     sub(/^[ \t]*/, "")
+version.awk     printf("file %s, line %d: %s\n\t%s\n", FILENAME, FNR, s, $0)
+version.awk }
