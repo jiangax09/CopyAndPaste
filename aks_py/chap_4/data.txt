@@ -1,0 +1,3 @@
+CONTENT         COUNTRY         POPULATION      AREA    POP.DEN.
+Asia            China           746             1267    588.8
+Europe          Germany         61              96      645.4
